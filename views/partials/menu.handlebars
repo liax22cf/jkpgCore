@@ -1,0 +1,54 @@
+<header id="menu" class="navbar">
+    <section class="navbar-section hide-md">
+        <a title="My Linked In" class="btn btn-link nav-logo-link" href="/"><img class="nav-logo" src="https://via.tt.se/data/images/00693/3962e524-8fd8-437c-9f34-c4a4cd308271-w_300_h_100.png" alt="jönköping city logo"></a>
+    </section>
+    
+    <section class="navbar-center">
+        <a class="btn btn-link button-right" href="/nyheter">Nyheter</a>
+        <span class="dropdown">
+            <a class="btn btn-link button-right" href="">Aktiviteter</a>
+            <div class="dropdown-content" id="me">
+                <a href="/shopping">Shopping</a>
+                <a href="/seevardheter">Seevärdheter</a>
+                <a href="/mat">Mat</a>
+                <a href="/barer">Barer</a>
+            </div>
+        </span>
+        <a class="btn btn-link button-right" href="/historia">Historia</a>
+    </section>
+    <section class="navbar-section navbar-titles"> 
+        {{#if IsLoggedIn}}
+            <span>
+                {{#unless IsAdmin}}
+                    <span id="hi-user">Hej {{name}}!</span>                    
+                {{/unless}}
+                <a class="log-button logout" href="/logout">Logga ut</a>
+                {{#if IsAdmin}}
+                <a class="btn btn-link" href="/admin"><img class="admin-button" src="/img/icons/admin.png" alt="man in suit icon"></a>
+                {{/if}}
+            </span>
+        {{else}}
+            <a class="log-button login" href="/login">Logga in</a>
+        {{/if}}
+    </section>
+</header>
+
+{{#if IsLoggedIn}}
+<a class="log-button logout" id="logout-button-two" href="/logout">Logout</a>
+{{#if IsAdmin}}
+<a class="btn btn-link" href="/admin"><img class="admin-button-two" src="/img/icons/admin.png" alt="man in suit icon"></a>
+{{/if}}
+{{else}}
+<a class="log-button login" id="login-button-two" href="/login">Login</a>
+{{/if}}
+
+{{#if showBackButton}}
+<a class="btn btn-link button-right back-button-link" href="javascript:history.back()"><img class="back-button" src="/img/icons/back-arrow.png" alt="double arrowed back button"></a>
+{{/if}}
+
+
+<div class="for-media-queries">
+    <br>
+    <br>
+</div>
+

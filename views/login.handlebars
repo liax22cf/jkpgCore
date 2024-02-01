@@ -1,0 +1,33 @@
+<div id="main">
+    <div>
+        <h1>Logga in</h1>
+        
+        <span>Har du inte ett konto? </span><a href="/register"><span class="register">Skapa ett nu!</span></a>
+        <p>
+            <form action="/login" method="post">
+                Användarnamn
+                <br>
+                <input type="text" name="username" required autofocus>
+                <br>
+                <br>
+                Lösenord
+                <br>
+                <input type="password" name="password" required>
+                <br>
+                <br>
+                <br>
+                <input type="submit" value="Logga in" class="btn btn-primary">
+            </form>
+        </p>
+    </div>
+</div>
+
+<script>
+  // Check if the user is logged in
+  const isLoggedIn = /* Add your logic to determine if the user is logged in */;
+
+  // If not logged in, save the current page URL to session storage
+  if (!isLoggedIn) {
+    sessionStorage.setItem('returnTo', window.location.href);
+  }
+</script>

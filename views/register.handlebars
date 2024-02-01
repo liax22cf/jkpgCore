@@ -1,0 +1,29 @@
+<div id="main">
+    <div>
+        <h1>Registrera dig</h1>
+            <form action="/register" method="post">
+                <br>
+                Användarnamn
+                <br>
+                <input type="text" name="username" required autofocus>
+                <br>
+                <br>
+                Lösenord
+                <br>
+                <input type="password" name="password" required>
+            
+                <br>
+                <div class="error-container">
+                    <br>
+                    {{#if errorMessage}}
+                        <img class="red-excl" src="/img/icons/red-excl.png" alt="">
+                        <div class="error-message-popup">{{errorMessage}}</div>
+                    {{/if}}
+                </div>
+            
+                <br>
+                <br>
+                <input type="submit" value="Registrera" class="btn btn-primary">
+            </form>
+    </div>
+</div>

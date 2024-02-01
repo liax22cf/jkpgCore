@@ -1,0 +1,90 @@
+<div id="main">
+  <h1>Welcome <strong>{{name}}</strong></h1>
+  <h5>to your dashboard</h5>
+
+  <br>
+
+  <span class="highlighted-text">Users</span>
+
+  <ul class="users">
+    {{#each users}}
+      <li class="users">
+        {{#unless isAdmin}}
+            <img class="users-icon" src="/img/icons/user.png" alt="user icon">
+        {{else}}
+            <img class="admin-icon" src="/img/icons/admin.png" alt="admin icon">
+        {{/unless}}
+
+        {{username}}
+
+        <span>
+            <button onclick="toggleClass('{{uid}}')" class="modify modify-user-button">Modify</button> - 
+            {{#unless isAdmin}}
+                <form style="display: inline;" action="/admin/users/delete/{{uid}}" method="post">
+                    <button title="Click to delete user" class="delete del-user-button" type="submit">Delete</button>
+                </form>
+            {{else}}
+                <form style="display: inline;">
+                    <button title="You cannot delete another admin" class="delete del-admin-button">Delete</button>
+                </form>
+            {{/unless}}
+        </span>
+
+        <form class="hidden-success-message modify-form" id="modify-form-{{uid}}" action="/admin/users/update/{{uid}}" method="post">
+              <!-- New Username -->
+              <input type="text" name="newUsername" placeholder="New Username" required value="{{username}}">
+
+              <!-- New Password -->
+              <input type="password" name="newPassword" placeholder="New Password" value="{{password}}">
+
+              <!-- Submit Button -->
+              <button class="btn btn-primary" type="submit">Confirm</button>
+        </form>
+        
+        
+
+            
+
+      </li>
+    {{/each}}
+  </ul>
+
+
+
+<br>
+
+<div class="card">
+    <h4 class="highlighted-text">Button Dashboard</h4>
+
+
+    <div class="btn-containertwo">
+      <form {{!-- action="" method="post" --}}>
+        <button class="btn btn-secondary" type="submit">NULL</button>
+      </form>
+      <form {{!-- action="" method="post" --}}>
+        <button class="btn btn-secondary" type="submit">NULL</button>
+      </form>
+      <form {{!-- action="" method="post" --}}>
+        <button class="btn btn-secondary" type="submit">NULL</button>
+      </form>
+      <form {{!-- action="" method="post" --}}>
+        <button class="btn btn-secondary" type="submit">NULL</button>
+      </form>
+    </div>
+  </div>
+
+  
+</div>
+
+<script>
+  function toggleClass(uid) {
+    var formId = 'modify-form-' + uid;
+    var element = document.getElementById(formId);
+    
+    if (element) {
+      element.classList.toggle('show');
+    }
+  }
+</script>
+
+<script src="/js/notLoggedInAlert().js"></script>
