@@ -4,7 +4,7 @@
         <div>
             {{#if IsLoggedIn}}
                 {{#if IsAdmin}}
-                    <form action="/butik/update/{{butik.bid}}" method="post">
+                    <form action="/butiker/update/{{butik.bid}}" method="post">
                         <fieldset>
                             <label for="butname">Butik Namn</label>
                             <input type="text" name="butname" id="butname" value="{{butik.bname}}" required>
@@ -41,11 +41,11 @@
                         <input type="submit" class="btn btn-primary" value="Uppdatera">
                     </form>
                 {{else}}
-                    <p>Sorry, you must be an administrator to add a new butect!</p>
+                    <p>Sorry, you must be an administrator to add a new butik!</p>
                 {{/if}}
             {{else}}
                 <p>
-                    Sorry you must be logged in to add a new butect!<br>
+                    Sorry you must be logged in to add a new butik!<br>
                     Please go to the <a href="/login">login</a> page.
                 </p>
             {{/if}}

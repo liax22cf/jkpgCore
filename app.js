@@ -88,6 +88,9 @@ app.set('view engine', 'handlebars');
 app.set('views', './views');
 
 
+
+
+
 //Database
 /* users */
 db.run(`
@@ -113,6 +116,33 @@ db.run(`
     burl TEXT
   );
 `);
+/* stores */
+db.run(`
+CREATE TABLE IF NOT EXISTS stores (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT,
+  url TEXT,
+  district TEXT
+);
+`);
+
+
+const storesData = JSON.parse(fs.readFileSync('./stores.json', 'utf8'));
+
+const insertStoreData = () => {
+  const stmt = db.prepare("INSERT OR IGNORE INTO stores (name, url, district) VALUES (?, ?, ?)");
+
+  storesData.forEach(store => {
+    stmt.run([store.name, store.url, store.district]);
+  });
+
+  console.log('Stores.json data inserted successfully!');
+  stmt.finalize();
+};
+
+//insertStoreData();
+
+
 
 const butikerData = [
   {
@@ -161,7 +191,7 @@ bcrypt.hash(adminPassword, 10, (err, hashedPassword) => {
 
 
 // Insert data into butiker tabel ************************ ONLY RUN ONCE ********************************
-for (const butik of butikerData) {
+/* for (const butik of butikerData) {
   db.run(
     `INSERT INTO butiker (bname, byear, bdesc, btype, bstatus, bimgURL, bimgAlt, burl)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -175,7 +205,7 @@ for (const butik of butikerData) {
     }
   );
 }
-
+ */
 
 // Butik Route
 app.get('/butiker', (req, res) => {
@@ -274,7 +304,7 @@ app.get('/butik/:id', (req, res) => {
     if (error) {
       console.error('Error fetching butik details:', error);
       res.render('404.handlebars');
-      return;  // Exit the function to avoid further processing
+      return;
     };
 
       const model = {
@@ -305,6 +335,7 @@ app.get('/butiker/update/:id', (req, res) => {
         IsLoggedIn: req.session.isLoggedIn,
         name: req.session.name
       }
+      console.log("test")
       res.render('redigerabutik.handlebars', model)
     } else {
       const model = {
@@ -467,6 +498,19 @@ app.get('/butiker', (req, res) => {
   };
   res.render('butiker.handlebars', model);
 });
+app.get('/stores', (req, res) => {
+  console.log('SESSION: ', req.session);
+  const model = {
+    IsAdmin: req.session.isAdmin,
+    IsLoggedIn: req.session.isLoggedIn,
+    name: req.session.name,
+    stores: storesData
+  };
+  res.render('stores.handlebars', model);
+});
+
+
+
 
 
 
@@ -678,6 +722,7 @@ app.post('/admin/users/delete/:uid', (req, res) => {
     res.redirect('/login');
   }
 });
+
 
 
 // 404 Route

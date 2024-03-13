@@ -1,0 +1,21 @@
+<div id="main">
+    <div>
+        <h1>Stores</h1>
+        <ul>
+        {{#each stores}}
+            <li>
+            <strong>Name:</strong> {{this.name}}<br>
+            {{#if this.url}}
+                <strong>URL:</strong> <a href="{{this.url}}" target="_blank">{{this.url}}</a><br>
+            {{/if}}
+            {{#if this.district}}
+                <strong>District:</strong> {{this.district}}
+            {{else}}
+                <strong>District:</strong> Not specified
+            {{/if}}
+            </li>
+        {{/each}}
+        </ul>
+
+    </div>
+</div>
