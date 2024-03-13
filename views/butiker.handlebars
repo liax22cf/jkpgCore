@@ -1,0 +1,50 @@
+<div id="main">
+    <div class="container">
+        <h1>Butiker</h1>
+    
+        {{#if IsAdmin}}
+            <div>
+                <a href="/butik/new" class="btn btn-primary">Ny Butik</a>
+            </div>
+        {{/if}}
+        <div class="columns col-gapless">
+            {{#if dbError}}
+                <div>
+                    Sorry there was a problem with the database:<br>
+                    {{theError}}
+                </div>
+            {{else}}
+                {{#each butiker}}
+                    <div class="column col-4 col-md-6 col-sm-12">
+                        <div class="card">
+                            <div class="card-image">
+                                <img src="{{bimgURL}}" alt="{{bimgAlt}}" id="rounded-edges" class="img-responsive">
+                            </div>
+                            <div class="card-header">
+                                <div class="card-title h3">{{bname}}</div>
+                                <div class="card-subtitle text-gray">{{byear}} --- {{btype}}</div>
+                                {{#if butikStatusO}}
+                                    <img class="status-icon" src="/img/icons/oppet.png" alt="">
+                                {{else}} 
+                                    {{#if butikStatusS}}
+                                        <img class="status-icon" src="/img/icons/stangt.png" alt="">
+                                    {{/if}}
+                                {{/if}}
+                            </div>
+                            <div class="card-footer">
+
+                                <a href="/butik/{{bid}}"><button class="read-more">Läs Mer</button></a>
+
+                                {{#if ../IsAdmin}}
+                                    <div>
+                                        <a href="/butiker/update/{{bid}}"><button class="modify">Ändra</button></a> - <a href="/butiker/delete/{{bid}}"><button class="delete">Ta bort</button></a>
+                                    </div>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}
+            {{/if}}
+        </div>
+    </div>
+</div>

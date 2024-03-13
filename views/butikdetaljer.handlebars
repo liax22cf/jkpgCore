@@ -1,0 +1,29 @@
+<div id="main">
+    <div class="container">
+    
+            {{#if dbError}}
+                <div>
+                    Sorry there was a problem with the database:<br>
+                    {{theError}}
+                </div>
+            {{else}}
+                <h1>{{butik.bname}}</h1>
+                <img src="{{butik.bimgURL}}" class="line-frame butik" alt="{{butik.bimgAlt}}">
+                
+                <p>{{butik.bdesc}}</p>
+                <p>Year: {{butik.byear}}</p>
+                
+
+                {{#if butik.burl}}
+                    <a {{#if IsLoggedIn}} href="{{butik.burl}}" target="_blank" {{else}} href="#" onclick="alertLinks();"{{/if}}><img class="link-image" src="/img/icons/link.png" alt="orange chain link icon"></a>
+                {{/if}}
+                
+
+
+            {{/if}}
+
+    </div>
+</div>
+
+<script src="/js/toggleClasses.js"></script>
+<script src="/js/notLoggedInAlert().js"></script>

@@ -1,0 +1,54 @@
+<div id="main">
+    <div>
+        <h1>Redigera Butik</h1>
+        <div>
+            {{#if IsLoggedIn}}
+                {{#if IsAdmin}}
+                    <form action="/butik/update/{{butik.bid}}" method="post">
+                        <fieldset>
+                            <label for="butname">Butik Namn</label>
+                            <input type="text" name="butname" id="butname" value="{{butik.bname}}" required>
+                            <br>
+                            <label for="butyear">Start år</label>
+                            <input type="number" name="butyear" id="butyear" placeholder="2024" value="{{butik.byear}}" required>
+                            <br>
+                            <label for="butdesc">Beskrivning</label>
+                            <textarea name="butdesc" id="butdesc" cols="30" rows="10" required>{{butik.bdesc}}</textarea>
+                            <br>
+                            <label for="buttype">Typ</label>
+                            <select name="buttype" id="buttype" required>
+                                <option value="Restaurang"{{#if (theTypeR butik.btyp)}} selected="selected"{{/if}}>Restaurang</option>
+                                <option value="Inredning"{{#if (theTypeI butik.btyp)}} selected="selected"{{/if}}>Inredning</option>
+                                <option value="Teknik"{{#if (theTypeT butik.btyp)}} selected="selected"{{/if}}>Teknik</option>
+                                <option value="Second Hand"{{#if (theTypeS butik.btyp)}} selected="selected"{{/if}}>Second Hand</option>
+                            </select>
+                            <br>
+                            <label for="butstatus">Status</label>
+                            <select name="butstatus" id="butstatus" required>
+                                <option value="Oppet"{{#if (theStatusO butik.bstatus)}} selected="selected"{{/if}}>Öppet</option>
+                                <option value="Stangt"{{#if (theStatusS butik.bstatus)}} selected="selected"{{/if}}>Stängt</option>
+                            </select>
+                            <br>
+                            <label for="butimg">Bild URL</label>
+                            <input type="text" name="butimg" id="butimg" placeholder="/img/butik/" value="{{butik.bimgURL}}" required>
+                            <br>
+                            <label for="butimgalt">Bild alternativ text</label>
+                            <input type="text" name="butimgalt" id="butimgalt" value="{{butik.bimgAlt}}">
+                            <br>
+                            <label for="buturl">Länk</label>
+                            <input type="text" name="buturl" id="buturl" value="{{butik.burl}}">
+                        </fieldset>
+                        <input type="submit" class="btn btn-primary" value="Uppdatera">
+                    </form>
+                {{else}}
+                    <p>Sorry, you must be an administrator to add a new butect!</p>
+                {{/if}}
+            {{else}}
+                <p>
+                    Sorry you must be logged in to add a new butect!<br>
+                    Please go to the <a href="/login">login</a> page.
+                </p>
+            {{/if}}
+        </div>
+    </div>
+</div>

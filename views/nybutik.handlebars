@@ -1,0 +1,54 @@
+<div id="main">
+    <div>
+        <h1>Ny Butik</h1>
+        <div>
+            {{#if IsLoggedIn}}
+                {{#if IsAdmin}}
+                    <form action="/butik/new" method="post" enctype="multipart/form-data">
+                        <fieldset>
+                            <label for="butname">Butik Namn</label>
+                            <input type="text" name="butname" id="butname" required autofocus>
+                            <br>
+                            <label for="butyear">Start år</label>
+                            <input type="number" name="butyear" id="butyear" placeholder="2023" required>
+                            <br>
+                            <label for="butdesc">Beskrivning</label>
+                            <textarea name="butdesc" id="butdesc  " cols="30" rows="10" required></textarea>
+                            <br>
+                            <label for="buttyp">Typ</label>
+                            <select name="buttyp" id="buttyp" required>
+                                <option value="Restaurang">Restaurang</option>
+                                <option value="Inredning">Inredning</option>
+                                <option value="Teknik">Teknik</option>
+                                <option value="Second Hand">Second Hand</option>
+                            </select>
+                            <br>
+                            <label for="butstatus">Status</label>
+                            <select name="butstatus" id="butstatus" required>
+                                <option value="Oppet">Öppet</option>
+                                <option value="Stangt">Stängt</option>
+                            </select>
+                            <br>
+                            <label for="butimg">Bild</label>
+                            <input type="file" name="butimg" id="butimg" accept="image/*" required>
+                            <br>
+                            <label for="butImgAlt">Bild alternativ text</label>
+                            <input type="text" name="butImgAlt" id="butimgAlt">
+                            <br>
+                            <label for="butURL">Länk</label>
+                            <input type="text" name="butURL" id="butURL">
+                        </fieldset>
+                        <input type="submit" class="btn btn-primary" value="Lägg till">
+                    </form>
+                {{else}}
+                    <p>Sorry, you must be an administrator to add a new butik!</p>
+                {{/if}}
+            {{else}}
+                <p>
+                    Sorry you must be logged in to add a new butik!<br>
+                    Please go to the <a href="/login">login</a> page.
+                </p>
+            {{/if}}
+        </div>
+    </div>
+</div>

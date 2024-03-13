@@ -10,7 +10,9 @@ const db = new sqlite3.Database('mydatabase.db');
 const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser')
 const bcrypt = require('bcrypt');
+const path = require('path');
 const axios = require('axios');
+const multer = require('multer');
 require('dotenv').config();
 
 // Middleware
@@ -25,6 +27,55 @@ app.use(session({
   "resave": false,
   "secret": process.env.SESSION_SECRET,
 }));
+
+
+
+
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    let destination;
+    switch (file.fieldname) {
+      case 'butimg':
+        destination = './public/img/butiker/';
+        break;
+      default:
+        destination = './public/img/';
+    }
+
+    cb(null, destination);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9); // one billion
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+
+const upload = multer({
+  storage: storage, 
+  fileFilter: (req, file, cb) => {
+    const isButikImage = file.fieldname === 'butimg';
+
+    if (isButikImage && !file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      return cb(new Error('Only images are allowed!'));
+    }
+    if (!isButikImage && !file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      return cb(new Error('Only images are allowed!'));
+    }
+    cb(null, true);
+  }
+});
+
+app.use('/admin-only', (req, res, next) => {
+  if (req.session.isAdmin) {
+    next();
+  } else {
+    res.status(403).send('Access Forbidden');
+  }
+});
+
+
+
 
 app.use(express.static('public'));
 
@@ -48,6 +99,43 @@ db.run(`
     creationDate DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 `);
+/* butiker */
+db.run(`
+  CREATE TABLE IF NOT EXISTS butiker (
+    bid INTEGER PRIMARY KEY AUTOINCREMENT,
+    bname TEXT,
+    byear INTEGER,
+    bdesc TEXT,
+    btype TEXT,
+    bstatus TEXT,
+    bimgURL TEXT,
+    bimgAlt TEXT,
+    burl TEXT
+  );
+`);
+
+const butikerData = [
+  {
+    bname: "Mc Donalds",
+    byear: 2023,
+    bdesc: "Hamburgare",
+    btype: "Restaurang",
+    bstatus: "Oppet",
+    bimgURL: "/img/butiker/mc.jpg",
+    bimgAlt: "mc donalds restaurang",
+    burl: "mcdonalds.com",
+  },
+  {
+    bname: "Clas Ohlsson",
+    byear: 2022,
+    bdesc: "Bra att ha saker",
+    btype: "Teknik",
+    bstatus: "Oppet",
+    bimgURL: "/img/butiker/clas.jpg",
+    bimgAlt: "clas ohlsson butik",
+    burl: "",
+  },
+];
 
 // Insert admin into users table ************************ ONLY RUN ONCE ********************************
 /* const adminUsername = 'admin';
@@ -71,6 +159,239 @@ bcrypt.hash(adminPassword, 10, (err, hashedPassword) => {
   }
 }); */
 
+
+// Insert data into butiker tabel ************************ ONLY RUN ONCE ********************************
+for (const butik of butikerData) {
+  db.run(
+    `INSERT INTO butiker (bname, byear, bdesc, btype, bstatus, bimgURL, bimgAlt, burl)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [butik.bname, butik.byear, butik.bdesc, butik.btype, butik.bstatus, butik.bimgURL, butik.bimgAlt, butik.burl],
+    (error) => {
+      if (error) {
+        console.error('Error inserting butik: ', error);
+      } else {
+        console.log('butik inserted successfully!');
+      }
+    }
+  );
+}
+
+
+// Butik Route
+app.get('/butiker', (req, res) => {
+  db.all("SELECT * FROM butiker ORDER BY byear DESC", (error, theButiker) => {
+    if(error){
+      const model = {
+        dbError: true,
+        theError: error,
+        butiker: [],
+        IsLoggedIn: req.session.isLoggedIn,
+        IsAdmin: req.session.isAdmin,
+        name: req.session.name
+      }
+      res.render('butiker.handlebars', model)
+    } else{
+      const model = {
+        dbError: false,
+        theError: "",
+        butiker: theButiker.map(butik => {
+          let butikStatusO;
+          let butikStatusS;
+          if (butik.bstatus === "Oppet") {
+            butikStatusO = "Oppet";
+            return {
+              ...butik,
+              butikStatusO: butikStatusO
+            };
+          } else if (butik.bstatus === "Stangt") {
+            butikStatusS = "Stangt";
+            return {
+              ...butik,
+              butikStatusS: butikStatusS
+            };
+          } else {
+            return{
+              ...butik,
+              butikStatusO: "", 
+              butikStatusS: "", 
+            }
+          }
+        }),
+        IsLoggedIn: req.session.isLoggedIn,
+        IsAdmin: req.session.isAdmin,
+        name: req.session.name
+      }
+      res.render('butiker.handlebars', model)
+    }
+  });
+});
+
+// Ny Butik Route
+app.get('/butik/new', (req, res) => {
+  if(req.session.isLoggedIn==true && req.session.isAdmin==true){
+      const model = {
+        IsLoggedIn: req.session.isLoggedIn,
+        IsAdmin: req.session.isAdmin,
+        name: req.session.name,
+        showBackButton: true
+      }
+      res.render('nybutik.handlebars', model)
+    } else{
+      res.redirect('/login', model)
+    }
+});
+app.post('/butik/new', upload.single('butimg'), (req, res) => {
+  const newP = [
+    req.body.butname,
+    req.body.butyear,
+    req.body.butdesc,
+    req.body.buttype,
+    req.body.butstatus,
+    req.file ? `/img/butiker/${req.file.filename}` : '/img/default_butik.jpg',
+    req.body.butImgAlt,
+    req.body.butURL
+  ];
+
+  if(req.session.isLoggedIn == true && req.session.isAdmin == true){
+    db.run("INSERT INTO butiker (bname, byear, bdesc, btype, bstatus, bimgURL, bimgAlt, bURL) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", newP, (error) => {
+      if(error){
+        console.log('ERROR: ' + error)
+      } else{
+        console.log('New butik added')
+      }
+      res.redirect('/butiker');
+    });
+  } else{
+    res.redirect('/login');
+  }
+});
+
+// Details about a butik
+app.get('/butik/:id', (req, res) => {
+  const butikId = req.params.id;
+
+  db.get('SELECT * FROM butiker WHERE bid=?', [butikId], (error, butik) => {
+    if (error) {
+      console.error('Error fetching butik details:', error);
+      res.render('404.handlebars');
+      return;  // Exit the function to avoid further processing
+    };
+
+      const model = {
+        butik: butik,
+        IsLoggedIn: req.session.isLoggedIn,
+        IsAdmin: req.session.isAdmin,
+        name: req.session.name,
+        showBackButton: true
+      };
+
+      res.render('butikdetaljer.handlebars', model);
+    });
+  });
+;
+
+
+
+
+// Sends the form to modify a butik
+app.get('/butiker/update/:id', (req, res) => {
+  const id = req.params.id
+  db.get("SELECT * FROM butiker WHERE bid=?", [id], (error, theButik) => {
+    if(error){
+      console.log('ERROR: ' + error)
+      const model = { dbError: true, theError: error,
+        butik: [],
+        IsAdmin: req.session.isAdmin,
+        IsLoggedIn: req.session.isLoggedIn,
+        name: req.session.name
+      }
+      res.render('redigerabutik.handlebars', model)
+    } else {
+      const model = {
+        dbError: false,
+        theError: "",
+        butik: theButik,
+        IsAdmin: req.session.isAdmin,
+        IsLoggedIn: req.session.isLoggedIn,
+        name: req.session.name,
+        helpers: {
+          theTypeR(value) { return value == "Restaurang"; },
+          theTypeI(value) { return value == "Inredning"; },
+          theTypeT(value) { return value == "Teknik"; },
+          theTypeS(value) { return value == "Second Hand"; },
+
+          theStatusO(value) { return value == "Oppet";},
+          theStatusS(value) { return value == "Stangt";},
+        },
+        showBackButton: true
+      }
+      res.render('redigerabutik.handlebars', model)
+    }
+  });
+});
+
+//Modifies an existing butik
+app.post('/butiker/update/:id', (req, res) => {
+  const id = req.params.id
+  const newB = [
+    req.body.butname,
+    req.body.butyear,
+    req.body.butdesc,
+    req.body.buttype,
+    req.body.butstatus,
+    req.body.butimg,
+    req.body.butimgalt,
+    req.body.buturl,
+    id
+  ]
+  if(req.session.isLoggedIn==true && req.session.isAdmin==true){
+    db.run("UPDATE butiker SET bname=?, byear=?, bdesc=?, btype=?, bstatus=?, bimgURL=?, bimgAlt=?, burl=? WHERE bid=?", newB, (error) => {
+      if(error) {
+        console.log('ERROR: ' + error)
+      } else {
+        console.log('Butik updated')
+      }
+      res.redirect('/butiker')
+    });
+  } else {
+    res.redirect('/login')
+  }
+});
+
+// Butik Deletion Route
+app.get('/butiker/delete/:id', (req, res) => {
+  const id = req.params.id
+
+  if (req.session.isLoggedIn == true && req.session.isAdmin == true) {
+    db.get('SELECT bimgURL FROM butiker WHERE bid=?', [id], (error, butik) => {
+      if (error) {
+        console.log('ERROR: ' + error);
+      } else {
+        const imgPath = './public' + butik.bimgURL;
+
+        db.run('DELETE FROM butiker WHERE bid=?', [id], (error) => {
+          if (error) {
+            console.log('ERROR: ' + error);
+          } else {
+
+            // Delete the image file
+            fs.unlink(imgPath, (unlinkError) => {
+              if (unlinkError) {
+                console.log('Butik deleted')
+                console.log('Error deleting butik-image: ' + unlinkError);
+              } else {
+                console.log('Butik and butik-image deleted');
+              }
+            });
+          }
+        });
+        res.redirect('/butiker');
+      }
+    });
+  } else {
+    res.redirect('/login');
+  }
+});
 
 
 // Home Route
@@ -136,6 +457,15 @@ app.get('/historia', (req, res) => {
     name: req.session.name
   };
   res.render('historia.handlebars', model);
+});
+app.get('/butiker', (req, res) => {
+  console.log('SESSION: ', req.session);
+  const model = {
+    IsAdmin: req.session.isAdmin,
+    IsLoggedIn: req.session.isLoggedIn,
+    name: req.session.name
+  };
+  res.render('butiker.handlebars', model);
 });
 
 
