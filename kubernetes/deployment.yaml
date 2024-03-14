@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jkpgcore-deployment
+  namespace: jkpgcity
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jkpgcore
+  template:
+    metadata:
+      labels:
+        app: jkpgcore
+    spec:
+      containers:
+      - name: jkpgcore
+        env:
+        - name: DB_HOST
+          value: "172.17.0.1"
+        image: localhost:80/jkpgcore
