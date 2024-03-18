@@ -82,7 +82,12 @@ app.use(express.static('public'));
 // Handlebars Setup
 app.engine('handlebars', engine({
   defaultLayout: 'main',
-  layoutsDir: __dirname + '/views/layouts/'
+  layoutsDir: __dirname + '/views/layouts/',
+  helpers: {
+    json: function(context) {
+      return JSON.stringify(context);
+    }
+  }
 }));
 app.set('view engine', 'handlebars');
 app.set('views', './views');
@@ -140,7 +145,7 @@ const insertStoreData = () => {
   stmt.finalize();
 };
 
-//insertStoreData();
+//insertStoreData(); 
 
 
 
@@ -498,13 +503,26 @@ app.get('/butiker', (req, res) => {
   };
   res.render('butiker.handlebars', model);
 });
+
+
+
 app.get('/stores', (req, res) => {
   console.log('SESSION: ', req.session);
+
+const districtCounts = storesData.reduce((acc, store) => {
+  if (store.district) {
+      acc[store.district] = (acc[store.district] || 0) + 1;
+  }
+  return acc;
+}, {});
+
+
   const model = {
     IsAdmin: req.session.isAdmin,
     IsLoggedIn: req.session.isLoggedIn,
     name: req.session.name,
-    stores: storesData
+    stores: storesData,
+    districtCounts: districtCounts
   };
   res.render('stores.handlebars', model);
 });
